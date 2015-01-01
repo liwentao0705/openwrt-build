@@ -12,4 +12,4 @@ src-git oldpackages http://git.openwrt.org/packages.git
 #src-svn xfce svn://svn.openwrt.org/openwrt/feeds/xfce
 #src-svn lxde svn://svn.openwrt.org/openwrt/feeds/lxde
 #src-link custom /usr/src/openwrt/custom-feed
-src-git extra https://github.com/liwentao0705/mywrt-extra.git
+src-git extra git://github.com/liwentao0705/mywrt-extra.git
