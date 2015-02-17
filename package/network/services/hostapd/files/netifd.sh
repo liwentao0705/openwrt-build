@@ -109,7 +109,7 @@ EOF
 
 hostapd_common_add_bss_config() {
 	config_add_string 'bssid:macaddr' 'ssid:string'
-	config_add_boolean wds wmm hidden
+	config_add_boolean wds wmm uapsd hidden
 
 	config_add_int maxassoc max_inactivity
 	config_add_boolean disassoc_low_ack isolate short_preamble
@@ -153,6 +153,9 @@ hostapd_common_add_bss_config() {
 	config_add_string macfilter 'macfile:file'
 	config_add_array 'maclist:list(macaddr)'
 
+	config_add_array bssid_blacklist
+	config_add_array bssid_whitelist
+
 	config_add_int mcast_rate
 	config_add_array basic_rate
 	config_add_array supported_rates
@@ -173,7 +176,7 @@ hostapd_set_bss_options() {
 		maxassoc max_inactivity disassoc_low_ack isolate auth_cache \
 		wps_pushbutton wps_label ext_registrar wps_pbc_in_m1 \
 		wps_device_type wps_device_name wps_manufacturer wps_pin \
-		macfilter ssid wmm hidden short_preamble rsn_preauth \
+		macfilter ssid wmm uapsd hidden short_preamble rsn_preauth \
 		iapp_interface
 
 	set_default isolate 0
@@ -183,6 +186,7 @@ hostapd_set_bss_options() {
 	set_default disassoc_low_ack 1
 	set_default hidden 0
 	set_default wmm 1
+	set_default uapsd 1
 
 	append bss_conf "ctrl_interface=/var/run/hostapd"
 	if [ "$isolate" -gt 0 ]; then
@@ -199,6 +203,7 @@ hostapd_set_bss_options() {
 	append bss_conf "preamble=$short_preamble" "$N"
 	append bss_conf "wmm_enabled=$wmm" "$N"
 	append bss_conf "ignore_broadcast_ssid=$hidden" "$N"
+	append bss_conf "uapsd_advertisement_enabled=$uapsd" "$N"
 
 	[ "$wpa" -gt 0 ] && {
 		[ -n "$wpa_group_rekey"  ] && append bss_conf "wpa_group_rekey=$wpa_group_rekey" "$N"
@@ -578,6 +583,12 @@ wpa_supplicant_add_network() {
 	[ -n "$bssid" ] && append network_data "bssid=$bssid" "$N$T"
 	[ -n "$beacon_int" ] && append network_data "beacon_int=$beacon_int" "$N$T"
 
+	local bssid_blacklist bssid_whitelist
+	json_get_values bssid_blacklist bssid_blacklist
+	json_get_values bssid_whitelist bssid_whitelist
+
+	[ -n "$bssid_blacklist" ] && append network_data "bssid_blacklist=$bssid_blacklist" "$N$T"
+	[ -n "$bssid_whitelist" ] && append network_data "bssid_whitelist=$bssid_whitelist" "$N$T"
 
 	[ -n "$basic_rate" ] && {
 		local br rate_list=
@@ -594,7 +605,8 @@ wpa_supplicant_add_network() {
 	}
 
 	local ht_str
-	[ -n "$ht" ] && append network_data "htmode=$ht" "$N$T"
+	[[ "$_w_mode" = adhoc ]] || ibss_htmode=
+	[ -n "$ibss_htmode" ] && append network_data "htmode=$ibss_htmode" "$N$T"
 
 	cat >> "$_config" <<EOF
 network={
