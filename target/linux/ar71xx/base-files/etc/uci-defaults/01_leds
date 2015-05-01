@@ -38,6 +38,7 @@ ap113)
 bullet-m | \
 nanostation-m | \
 rocket-m | \
+rocket-m-xw | \
 nanostation-m-xw | \
 loco-m-xw)
 	ucidef_set_led_rssi "rssilow" "RSSILOW" "ubnt:red:link1" "wlan0" "1" "100" "0" "13"
@@ -164,7 +165,8 @@ hiwifi-hc6361)
 	ucidef_set_led_wlan "wlan" "WLAN" "hiwifi:blue:wlan-2p4" "phy0tpt"
 	;;
 
-hornet-ub)
+hornet-ub | \
+hornet-ub-x2)
 	ucidef_set_led_netdev "lan" "LAN" "alfa:blue:lan" "eth0"
 	ucidef_set_led_netdev "wan" "WAN" "alfa:blue:wan" "eth1"
 	ucidef_set_led_wlan "wlan" "WLAN" "alfa:blue:wlan" "phy0tpt"

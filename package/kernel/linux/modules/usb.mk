@@ -18,8 +18,7 @@ define KernelPackage/usb-core
   KCONFIG:=CONFIG_USB CONFIG_XPS_USB_HCD_XILINX=n CONFIG_USB_FHCI_HCD=n
   FILES:= \
 	$(LINUX_DIR)/drivers/usb/core/usbcore.ko \
-	$(LINUX_DIR)/drivers/usb/usb-common.ko@lt3.16 \
-	$(LINUX_DIR)/drivers/usb/common/usb-common.ko@ge3.16
+	$(LINUX_DIR)/drivers/usb/common/usb-common.ko
   AUTOLOAD:=$(call AutoLoad,20,usb-common usbcore,1)
   $(call AddDepends/nls)
 endef
@@ -218,8 +217,7 @@ define KernelPackage/usb-gadget
   TITLE:=USB Gadget support
   KCONFIG:=CONFIG_USB_GADGET
   FILES:=\
-	$(LINUX_DIR)/drivers/usb/gadget/udc-core.ko@lt3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/udc/udc-core.ko@ge3.18
+	$(LINUX_DIR)/drivers/usb/gadget/udc/udc-core.ko
   AUTOLOAD:=$(call AutoLoad,45,udc-core)
   DEPENDS:=@USB_GADGET_SUPPORT
   $(call AddDepends/usb)
@@ -254,24 +252,13 @@ define KernelPackage/usb-eth-gadget
 	CONFIG_USB_ETH_RNDIS=y \
 	CONFIG_USB_ETH_EEM=n
   DEPENDS:=+kmod-usb-gadget +kmod-usb-lib-composite
-ifeq ($(CONFIG_LINUX_3_10),)
   FILES:= \
-	$(LINUX_DIR)/drivers/usb/gadget/function/u_ether.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_ecm.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_ecm_subset.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_rndis.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/legacy/g_ether.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/u_ether.ko@lt3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/u_rndis.ko@lt3.14 \
-	$(LINUX_DIR)/drivers/usb/gadget/usb_f_ecm.ko@lt3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/usb_f_ecm_subset.ko@lt3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/usb_f_rndis.ko@lt3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/g_ether.ko@lt3.18
+	$(LINUX_DIR)/drivers/usb/gadget/function/u_ether.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_ecm.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_ecm_subset.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_rndis.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/legacy/g_ether.ko
   AUTOLOAD:=$(call AutoLoad,52,usb_f_ecm g_ether)
-else
-  FILES:=$(LINUX_DIR)/drivers/usb/gadget/g_ether.ko
-  AUTOLOAD:=$(call AutoLoad,52,g_ether)
-endif
   $(call AddDepends/usb)
 endef
 
@@ -287,16 +274,11 @@ define KernelPackage/usb-serial-gadget
   KCONFIG:=CONFIG_USB_G_SERIAL
   DEPENDS:=+kmod-usb-gadget +kmod-usb-lib-composite
   FILES:= \
-	$(LINUX_DIR)/drivers/usb/gadget/function/u_serial.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_acm.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_obex.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_serial.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/legacy/g_serial.ko@ge3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/u_serial.ko@lt3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/usb_f_acm.ko@lt3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/usb_f_obex.ko@lt3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/usb_f_serial.ko@lt3.18 \
-	$(LINUX_DIR)/drivers/usb/gadget/g_serial.ko@lt3.18
+	$(LINUX_DIR)/drivers/usb/gadget/function/u_serial.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_acm.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_obex.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/function/usb_f_serial.ko \
+	$(LINUX_DIR)/drivers/usb/gadget/legacy/g_serial.ko
   AUTOLOAD:=$(call AutoLoad,52,usb_f_acm g_serial)
   $(call AddDepends/usb)
 endef
@@ -327,7 +309,9 @@ $(eval $(call KernelPackage,usb-uhci,1))
 
 define KernelPackage/usb-ohci
   TITLE:=Support for OHCI controllers
-  DEPENDS:=+TARGET_brcm47xx:kmod-usb-brcm47xx
+  DEPENDS:= \
+	+TARGET_brcm47xx:kmod-usb-bcma \
+	+TARGET_brcm47xx:kmod-usb-ssb
   KCONFIG:= \
 	CONFIG_USB_OHCI \
 	CONFIG_USB_OHCI_HCD \
@@ -337,10 +321,9 @@ define KernelPackage/usb-ohci
 	CONFIG_USB_OCTEON_OHCI=y \
 	CONFIG_USB_OHCI_HCD_OMAP3=y \
 	CONFIG_USB_OHCI_HCD_PLATFORM=y
-  FILES:=$(LINUX_DIR)/drivers/usb/host/ohci-hcd.ko
-ifeq ($(CONFIG_LINUX_3_10),)
-  FILES+=$(LINUX_DIR)/drivers/usb/host/ohci-platform.ko
-endif
+  FILES:= \
+	$(LINUX_DIR)/drivers/usb/host/ohci-hcd.ko \
+	$(LINUX_DIR)/drivers/usb/host/ohci-platform.ko
   AUTOLOAD:=$(call AutoLoad,50,ohci-hcd ohci-platform,1)
   $(call AddDepends/usb)
 endef
@@ -403,11 +386,36 @@ endef
 
 $(eval $(call KernelPackage,usb2-omap))
 
+define KernelPackage/usb-bcma
+  TITLE:=Support for BCMA USB controllers
+  DEPENDS:=@USB_SUPPORT @TARGET_brcm47xx||TARGET_bcm53xx
+  HIDDEN:=1
+  KCONFIG:=CONFIG_USB_HCD_BCMA
+  FILES:= \
+	$(if $(CONFIG_USB_HCD_BCMA),$(LINUX_DIR)/drivers/usb/host/bcma-hcd.ko)
+  AUTOLOAD:=$(call AutoLoad,19,$(if $(CONFIG_USB_HCD_BCMA),bcma-hcd),1)
+  $(call AddDepends/usb)
+endef
+$(eval $(call KernelPackage,usb-bcma))
+
+define KernelPackage/usb-ssb
+  TITLE:=Support for SSB USB controllers
+  DEPENDS:=@USB_SUPPORT @TARGET_brcm47xx
+  HIDDEN:=1
+  KCONFIG:=CONFIG_USB_HCD_SSB
+  FILES:= \
+	$(if $(CONFIG_USB_HCD_SSB),$(LINUX_DIR)/drivers/usb/host/ssb-hcd.ko)
+  AUTOLOAD:=$(call AutoLoad,19,$(if $(CONFIG_USB_HCD_SSB),ssb-hcd),1)
+  $(call AddDepends/usb)
+endef
+$(eval $(call KernelPackage,usb-ssb))
 
 define KernelPackage/usb2
   TITLE:=Support for USB2 controllers
   DEPENDS:=\
-	+TARGET_brcm47xx:kmod-usb-brcm47xx \
+	+TARGET_brcm47xx:kmod-usb-bcma \
+	+TARGET_brcm47xx:kmod-usb-ssb \
+	+TARGET_bcm53xx:kmod-usb-bcma \
 	+TARGET_mpc85xx:kmod-usb2-fsl
   KCONFIG:=\
 	CONFIG_USB_EHCI_HCD \
@@ -453,7 +461,7 @@ $(eval $(call KernelPackage,usb2-pci))
 
 define KernelPackage/usb-dwc2
   TITLE:=DWC2 USB controller driver
-  DEPENDS:=@!LINUX_3_10 +(TARGET_brcm2708||TARGET_at91||TARGET_brcm63xx||TARGET_mxs):kmod-usb-gadget
+  DEPENDS:=+(TARGET_brcm2708||TARGET_at91||TARGET_brcm63xx||TARGET_mxs||TARGET_imx6):kmod-usb-gadget
   KCONFIG:= \
 	CONFIG_USB_DWC2 \
 	CONFIG_USB_DWC2_PCI \
@@ -829,21 +837,6 @@ endef
 $(eval $(call KernelPackage,usb-serial-sierrawireless))
 
 
-define KernelPackage/usb-serial-motorola-phone
-  TITLE:=Support for Motorola usb phone
-  KCONFIG:=CONFIG_USB_SERIAL_MOTOROLA
-  FILES:=$(LINUX_DIR)/drivers/usb/serial/moto_modem.ko
-  AUTOLOAD:=$(call AutoProbe,moto_modem)
-  $(call AddDepends/usb-serial)
-endef
-
-define KernelPackage/usb-serial-motorola-phone/description
- Kernel support for Motorola usb phone
-endef
-
-$(eval $(call KernelPackage,usb-serial-motorola-phone))
-
-
 define KernelPackage/usb-serial-visor
   TITLE:=Support for Handspring Visor devices
   KCONFIG:=CONFIG_USB_SERIAL_VISOR
@@ -1079,7 +1072,7 @@ define KernelPackage/usb-net
   TITLE:=Kernel modules for USB-to-Ethernet convertors
   DEPENDS:=+kmod-mii
   KCONFIG:=CONFIG_USB_USBNET \
-	CONFIG_USB_NET_DRIVERS@ge3.18
+	CONFIG_USB_NET_DRIVERS
   AUTOLOAD:=$(call AutoProbe,usbnet)
   FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/usbnet.ko
   $(call AddDepends/usb)
@@ -1336,7 +1329,7 @@ define KernelPackage/usb-net-huawei-cdc-ncm
   KCONFIG:=CONFIG_USB_NET_HUAWEI_CDC_NCM
   FILES:= $(LINUX_DIR)/drivers/$(USBNET_DIR)/huawei_cdc_ncm.ko
   AUTOLOAD:=$(call AutoProbe,huawei_cdc_ncm)
-  $(call AddDepends/usb-net,+kmod-usb-net-cdc-ncm +kmod-usb-wdm @!LINUX_3_10)
+  $(call AddDepends/usb-net,+kmod-usb-net-cdc-ncm +kmod-usb-wdm)
 endef
 
 define KernelPackage/usb-net-huawei-cdc-ncm/description
@@ -1459,9 +1452,7 @@ define KernelPackage/usbip
   KCONFIG:= \
 	CONFIG_USBIP_CORE \
 	CONFIG_USBIP_DEBUG=n
-  FILES:= \
-	$(LINUX_DIR)/drivers/staging/usbip/usbip-core.ko@lt3.17 \
-	$(LINUX_DIR)/drivers/usb/usbip/usbip-core.ko@ge3.17
+  FILES:=$(LINUX_DIR)/drivers/usb/usbip/usbip-core.ko
   AUTOLOAD:=$(call AutoProbe,usbip-core)
   $(call AddDepends/usb)
 endef
@@ -1473,9 +1464,7 @@ define KernelPackage/usbip-client
   TITLE := USB-over-IP client driver
   DEPENDS := +kmod-usbip
   KCONFIG := CONFIG_USBIP_VHCI_HCD
-  FILES := \
-	$(LINUX_DIR)/drivers/staging/usbip/vhci-hcd.ko@lt3.17 \
-	$(LINUX_DIR)/drivers/usb/usbip/vhci-hcd.ko@ge3.17
+  FILES :=$(LINUX_DIR)/drivers/usb/usbip/vhci-hcd.ko
   AUTOLOAD := $(call AutoProbe,vhci-hcd)
   $(call AddDepends/usb)
 endef
@@ -1488,9 +1477,7 @@ $(call KernelPackage/usbip/Default)
   TITLE := USB-over-IP host driver
   DEPENDS := +kmod-usbip
   KCONFIG := CONFIG_USBIP_HOST
-  FILES := \
-	$(LINUX_DIR)/drivers/staging/usbip/usbip-host.ko@lt3.17 \
-	$(LINUX_DIR)/drivers/usb/usbip/usbip-host.ko@ge3.17
+  FILES :=$(LINUX_DIR)/drivers/usb/usbip/usbip-host.ko
   AUTOLOAD := $(call AutoProbe,usbip-host)
   $(call AddDepends/usb)
 endef
