@@ -54,13 +54,19 @@ define Build/trx-nand
 		-A $(KDIR)/ubi_mark -a 0x20000
 endef
 
+define Build/asus-trx
+	$(STAGING_DIR_HOST)/bin/asustrx \
+		-p $(PRODUCTID) -i $@ -o $@.new
+	mv $@.new $@
+endef
+
 define Build/netgear-chk
 	$(STAGING_DIR_HOST)/bin/mkchkimg \
 		-o $@.new -k $@ -b $(BOARD_ID) -r $(REGION)
 	mv $@.new $@
 endef
 
-DEVICE_VARS += DT BOARD_ID REGION
+DEVICE_VARS += DT PRODUCTID BOARD_ID REGION
 
 define Device/Default
   # .dtb files are prefixed by SoC type, e.g. bcm4708- which is not included in device/image names
@@ -72,6 +78,19 @@ define Device/Default
   IMAGE_NAME = $$(IMAGE_PREFIX)-$$(1).$$(2)
   IMAGES := trx
   IMAGE/trx := trx-nand
+endef
+
+define Device/asus
+  IMAGES := trx
+  IMAGE/trx := trx-nand | asus-trx
+endef
+
+define AsusDevice
+  define Device/asus-$(1)
+	$$(Device/asus)
+	PRODUCTID := $(2)
+  endef
+  TARGET_DEVICES += asus-$(1)
 endef
 
 define Device/netgear
@@ -95,10 +114,20 @@ define Device/netgear-r8000
   BOARD_ID := U12H315T00_NETGEAR
 endef
 
+define Device/smartrg-sr400ac
+  IMAGES := trx
+  IMAGE/trx := trx-serial
+endef
+
 TARGET_DEVICES += \
-	asus-rt-ac56u asus-rt-ac68u asus-rt-ac87u asus-rt-n18u \
-	netgear-r6250 netgear-r6300-v2 netgear-r8000 \
 	buffalo-wzr-1750dhp buffalo-wzr-600dhp2 buffalo-wzr-900dhp \
-	buffalo-wxr-1900dhp
+	buffalo-wxr-1900dhp \
+	netgear-r6250 netgear-r6300-v2 netgear-r8000 \
+	smartrg-sr400ac
+
+$(eval $(call AsusDevice,rt-ac56u,RT-AC56U))
+$(eval $(call AsusDevice,rt-ac68u,RT-AC68U))
+$(eval $(call AsusDevice,rt-ac87u,RT-AC87U))
+$(eval $(call AsusDevice,rt-n18u,RT-N18U))
 
 $(eval $(call BuildImage))

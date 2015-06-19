@@ -12,6 +12,9 @@ get_status_led() {
 	all0305)
 		status_led="eap7660d:green:ds4"
 		;;
+	antminer-s1)
+		status_led="bitmain:green:system"
+		;;
 	ap132)
 		status_led="ap132:green:status"
 		;;
@@ -80,11 +83,17 @@ get_status_led() {
 	el-m150)
 		status_led="easylink:green:system"
 		;;
+	ew-dorin | ew-dorin-router)
+		status_led="dorin:green:status"
+		;;
 	f9k1115v2)
 		status_led="belkin:blue:status"
 		;;
 	gl-inet)
 		status_led="gl-connect:green:lan"
+		;;
+	epg5000)
+		status_led="epg5000:amber:power"
 		;;
 	esr1750)
 		status_led="esr1750:amber:power"
@@ -108,6 +117,12 @@ get_status_led() {
 		;;
 	mc-mac1200r)
 		status_led="mercury:green:system"
+		;;
+	mr12)
+		status_led="mr12:green:power"
+		;;
+	mr16)
+		status_led="mr16:green:power"
 		;;
 	mr600)
 		status_led="mr600:orange:power"
@@ -298,6 +313,9 @@ get_status_led() {
 		;;
 	wpj344)
 		status_led="wpj344:green:status"
+		;;
+	wpj531)
+		status_led="wpj531:green:sig3"
 		;;
 	wpj558)
 		status_led="wpj558:green:sig3"

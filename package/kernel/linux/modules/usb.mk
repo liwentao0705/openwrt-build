@@ -103,18 +103,8 @@ define KernelPackage/usb-phy-nop
   TITLE:=Support for USB NOP transceiver
   KCONFIG:=CONFIG_NOP_USB_XCEIV
   HIDDEN:=1
-ifneq ($(wildcard $(LINUX_DIR)/drivers/usb/phy/phy-generic.ko),)
   FILES:=$(LINUX_DIR)/drivers/usb/phy/phy-generic.ko
   AUTOLOAD:=$(call AutoLoad,43,phy-generic)
-else
-ifneq ($(wildcard $(LINUX_DIR)/drivers/usb/phy/phy-nop.ko),)
-  FILES:=$(LINUX_DIR)/drivers/usb/phy/phy-nop.ko
-  AUTOLOAD:=$(call AutoLoad,43,phy-nop)
-else
-  FILES:=$(LINUX_DIR)/drivers/usb/otg/nop-usb-xceiv.ko
-  AUTOLOAD:=$(call AutoLoad,43,nop-usb-xceiv)
-endif
-endif
   $(call AddDepends/usb)
 endef
 
@@ -310,6 +300,7 @@ $(eval $(call KernelPackage,usb-uhci,1))
 define KernelPackage/usb-ohci
   TITLE:=Support for OHCI controllers
   DEPENDS:= \
+	+TARGET_bcm53xx:kmod-usb-bcma \
 	+TARGET_brcm47xx:kmod-usb-bcma \
 	+TARGET_brcm47xx:kmod-usb-ssb
   KCONFIG:= \
@@ -344,7 +335,7 @@ define KernelPackage/usb-ohci-pci
   $(call AddDepends/usb)
 endef
 
-define KernelPackage/usb2-pci/description
+define KernelPackage/usb-ohci-pci/description
  Kernel support for PCI OHCI controllers
 endef
 
@@ -561,18 +552,10 @@ define KernelPackage/usb-audio
 	CONFIG_SND_USB_AUDIO
   $(call AddDepends/usb)
   $(call AddDepends/sound)
-# For Linux 2.6.35+
-ifneq ($(wildcard $(LINUX_DIR)/sound/usb/snd-usbmidi-lib.ko),)
   FILES:= \
 	$(LINUX_DIR)/sound/usb/snd-usbmidi-lib.ko \
 	$(LINUX_DIR)/sound/usb/snd-usb-audio.ko
   AUTOLOAD:=$(call AutoProbe,snd-usbmidi-lib snd-usb-audio)
-else
-  FILES:= \
-	$(LINUX_DIR)/sound/usb/snd-usb-lib.ko \
-	$(LINUX_DIR)/sound/usb/snd-usb-audio.ko
-  AUTOLOAD:=$(call AutoProbe,snd-usb-lib snd-usb-audio)
-endif
 endef
 
 define KernelPackage/usb-audio/description
@@ -1275,6 +1258,36 @@ define KernelPackage/usb-net-qmi-wwan/description
 endef
 
 $(eval $(call KernelPackage,usb-net-qmi-wwan))
+
+
+define KernelPackage/usb-net-rtl8150
+  TITLE:=Kernel module for USB-to-Ethernet Realtek convertors
+  KCONFIG:=CONFIG_USB_RTL8150
+  FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/rtl8150.ko
+  AUTOLOAD:=$(call AutoProbe,rtl8150)
+  $(call AddDepends/usb-net)
+endef
+
+define KernelPackage/usb-net-rtl8150/description
+ Kernel module for USB-to-Ethernet Realtek 8150 convertors
+endef
+
+$(eval $(call KernelPackage,usb-net-rtl8150))
+
+
+define KernelPackage/usb-net-rtl8152
+  TITLE:=Kernel module for USB-to-Ethernet Realtek convertors
+  KCONFIG:=CONFIG_USB_RTL8152
+  FILES:=$(LINUX_DIR)/drivers/$(USBNET_DIR)/r8152.ko
+  AUTOLOAD:=$(call AutoProbe,r8152)
+  $(call AddDepends/usb-net)
+endef
+
+define KernelPackage/usb-net-rtl8152/description
+ Kernel module for USB-to-Ethernet Realtek 8152 USB2.0/3.0 convertors
+endef
+
+$(eval $(call KernelPackage,usb-net-rtl8152))
 
 
 define KernelPackage/usb-net-rndis

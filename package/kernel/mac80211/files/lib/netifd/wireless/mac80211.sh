@@ -21,7 +21,7 @@ drv_mac80211_init_device_config() {
 	config_add_string hwmode
 	config_add_int beacon_int chanbw frag rts
 	config_add_int rxantenna txantenna antenna_gain txpower distance
-	config_add_boolean noscan
+	config_add_boolean noscan ht_coex
 	config_add_array ht_capab
 	config_add_boolean \
 		rxldpc \
@@ -90,7 +90,7 @@ mac80211_hostapd_setup_base() {
 
 	[ "$auto_channel" -gt 0 ] && channel=acs_survey
 
-	json_get_vars noscan
+	json_get_vars noscan ht_coex
 	json_get_values ht_capab_list ht_capab
 
 	ieee80211n=1
@@ -126,6 +126,9 @@ mac80211_hostapd_setup_base() {
 
 	[ -n "$ieee80211n" ] && {
 		append base_cfg "ieee80211n=1" "$N"
+
+		set_default ht_coex 0
+		append base_cfg "ht_coex=$ht_coex" "$N"
 
 		json_get_vars \
 			ldpc:1 \
@@ -447,7 +450,7 @@ mac80211_prepare_vif() {
 			mac80211_hostapd_setup_bss "$phy" "$ifname" "$macaddr" "$type" || return
 
 			[ -n "$hostapd_ctrl" ] || {
-				iw phy "$phy" interface add "$ifname" type managed
+				iw phy "$phy" interface add "$ifname" type __ap
 				hostapd_ctrl="${hostapd_ctrl:-/var/run/hostapd/$ifname}"
 			}
 		;;
@@ -590,11 +593,6 @@ mac80211_setup_vif() {
 
 	case "$mode" in
 		mesh)
-			for var in $MP_CONFIG_INT $MP_CONFIG_BOOL $MP_CONFIG_STRING; do
-				json_get_var mp_val "$var"
-				[ -n "$mp_val" ] && iw dev "$ifname" set mesh_param "$var" "$mp_val"
-			done
-
 			# authsae or wpa_supplicant
 			json_get_vars key
 			if [ -n "$key" ]; then
@@ -606,6 +604,11 @@ mac80211_setup_vif() {
 					mac80211_setup_supplicant || failed=1
 				fi
 			fi
+
+			for var in $MP_CONFIG_INT $MP_CONFIG_BOOL $MP_CONFIG_STRING; do
+				json_get_var mp_val "$var"
+				[ -n "$mp_val" ] && iw dev "$ifname" set mesh_param "$var" "$mp_val"
+			done
 		;;
 		adhoc)
 			wireless_vif_parse_encryption

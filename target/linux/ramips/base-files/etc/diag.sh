@@ -36,6 +36,9 @@ get_status_led() {
 	br6425 | br-6475nd)
 		status_led="edimax:green:power"
 		;;
+	cf-wr800n)
+		status_led="comfast:white:wps"
+		;;
 	cy-swr1100)
 		status_led="samsung:blue:wps"
 		;;
@@ -44,6 +47,9 @@ get_status_led() {
 		;;
 	dcs-930 | dir-300-b1 | dir-600-b1 | dir-600-b2 | dir-610-a1 | dir-615-h1 | dir-615-d | dir-620-a1| dir-620-d1| dir-300-b7| dir-320-b1)
 		status_led="d-link:green:status"
+		;;
+	dcs-930l-b1)
+		status_led="d-link:red:power"
 		;;
 	dir-645)
 		status_led="d-link:green:wps"
@@ -101,6 +107,9 @@ get_status_led() {
 	mpr-a2)
 		status_led="hame:red:power"
 		;;
+	mr-102n)
+		status_led="mr-102n:amber:status"
+		;;
 	nbg-419n)
 		status_led="nbg-419n:green:power"
 		;;
@@ -111,6 +120,9 @@ get_status_led() {
 	omni-emb-hpm)
 		status_led="emb:green:status"
 		;;
+	pbr-m1)
+		status_led="pbr-m1:green:sys"
+		;;
 	psr-680w)
 		status_led="psr-680w:red:wan"
 		;;
@@ -120,13 +132,16 @@ get_status_led() {
 	px4885)
 		status_led="7links:orange:wifi"
 		;;
+	re6500)
+		status_led="linksys:orange:wifi"
+		;;
 	rt-n15)
 		status_led="rt-n15:blue:power"
 		;;
 	rt-n10-plus)
 		status_led="asus:green:wps"
 		;;
-	rt-n56u | wl-330n | wl-330n3g)
+	rt-n14u | rt-n56u | wl-330n | wl-330n3g)
 		status_led="asus:blue:power"
 		;;
 	rut5xx)
@@ -160,9 +175,7 @@ get_status_led() {
 	whr-g300n)
 		status_led="whr-g300n:green:router"
 		;;
-	wmr300 | \
-	whr-300hp2 | \
-	whr-600d)
+	wmr300)
 		status_led="buffalo:green:status"
 		;;
 	wli-tx4-ag300n)
@@ -180,6 +193,9 @@ get_status_led() {
 	wr8305rt)
 		status_led="wr8305rt:sys"
 		;;
+	whr-300hp2 | \
+	whr-600d | \
+	whr-1166d | \
 	wsr-600 | \
 	wsr-1166)
 		status_led="buffalo:orange:diag"

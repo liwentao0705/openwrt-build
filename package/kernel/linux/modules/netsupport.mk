@@ -802,6 +802,8 @@ define KernelPackage/sched
 	CONFIG_NET_SCH_TBF \
 	CONFIG_NET_SCH_SFQ \
 	CONFIG_NET_SCH_TEQL \
+	CONFIG_NET_SCH_FQ \
+	CONFIG_NET_SCH_PIE \
 	CONFIG_NET_CLS_BASIC \
 	CONFIG_NET_ACT_POLICE \
 	CONFIG_NET_ACT_IPT \
@@ -896,10 +898,12 @@ $(eval $(call KernelPackage,l2tp-eth))
 define KernelPackage/l2tp-ip
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=L2TP IP encapsulation for L2TPv3
-  DEPENDS:=+kmod-l2tp
+  DEPENDS:=+kmod-l2tp +IPV6:kmod-ipv6
   KCONFIG:=CONFIG_L2TP_IP
-  FILES:=$(LINUX_DIR)/net/l2tp/l2tp_ip.ko
-  AUTOLOAD:=$(call AutoLoad,33,l2tp_ip)
+  FILES:= \
+	$(LINUX_DIR)/net/l2tp/l2tp_ip.ko \
+	$(if $(CONFIG_IPV6),$(LINUX_DIR)/net/l2tp/l2tp_ip6.ko)
+  AUTOLOAD:=$(call AutoLoad,33,l2tp_ip $(if $(CONFIG_IPV6),l2tp_ip6))
 endef
 
 define KernelPackage/l2tp-ip/description
